@@ -1,5 +1,4 @@
 import random
-import sys
 import re
 
 #var for loosing 
@@ -113,6 +112,10 @@ print()
 money = (bet_amount * 2)
 if player_total > 21 and dealer > 21:
     print("Push!")
+elif player_total > 21 and dealer <= 21:
+    print("You Lose :(")
+    balance_change(var)
+    print("New Balance:",(int(balance) - bet_amount))
 elif dealer > 21:
     print("You Win!")
     print('Winnings:', bet_amount * 2)

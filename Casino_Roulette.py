@@ -3,7 +3,7 @@ import time
 import re
 
 #get ball spin
-ball = random.randint(0,1)
+ball = random.randint(0,36)
 
 #var for loosing
 var = 0
