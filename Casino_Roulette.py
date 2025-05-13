@@ -14,8 +14,14 @@ red = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
 black = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
 
 #Read balance file
-with open('account_balance.txt', 'rb') as file:
-    balance = ''.join(re.findall(r'\d+', str(file.readlines())))
+try:
+    with open('account_balance.txt', 'rb') as file:
+        content = file.read()  # Read the entire file content as bytes
+        balance = ''.join(re.findall(r'\d+', content.decode('utf-8')))
+    print(f"Current Balance: {balance}")
+except FileNotFoundError:
+    print("GO TO THE CASINO")
+    quit()
 
 #Write to balance file
 def balance_change(bal_change):

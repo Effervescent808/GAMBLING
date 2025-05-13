@@ -5,8 +5,14 @@ import re
 var = 0
 
 #get balance
-with open('account_balance.txt', 'rb') as file:
-    balance = ''.join(re.findall(r'\d+', str(file.readlines())))
+try:
+    with open('account_balance.txt', 'rb') as file:
+        content = file.read()  # Read the entire file content as bytes
+        balance = ''.join(re.findall(r'\d+', content.decode('utf-8')))
+    print(f"Current Balance: {balance}")
+except FileNotFoundError:
+    print("GO TO THE CASINO")
+    quit()
 
 print()
 print("I love BlackJack")
