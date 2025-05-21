@@ -44,8 +44,6 @@ def spin(times):
         print(". . .")
         time.sleep(.05)
 
-print('Current Balance:',balance)
-
 while True:
     try:
         machine = input("Which Slot Machine? (10/50/100/500/1000): ")
