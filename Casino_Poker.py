@@ -5,8 +5,15 @@ import re
 with open('account_balance.txt', 'rb') as file:
     balance = ''.join(re.findall(r'\d+', str(file.readlines())))
 
+with open('bot1_account.txt', 'rb') as file:
+    bot1_bal_s = ''.join(re.findall(r'\d+', str(file.readlines())))
+
+bot1_bal = int(bot1_bal_s)
 #USE FOR CHECKING FOR DUPLICATES
 all_cards = []
+
+pot = 0
+total_bot_bet = 0
 
 twos = []
 threes = []
@@ -22,7 +29,30 @@ queens = []
 kings = []
 aces = []
 
+bot_twos = []
+bot_threes = []
+bot_fours = []
+bot_fives = []
+bot_sixes = []
+bot_sevens = []
+bot_eights = []
+bot_nines = []
+bot_tens = []
+bot_jacks = []
+bot_queens = []
+bot_kings = []
+bot_aces = []
+
+spades = []
+hearts = []
+diamonds = []
+clubs = []
+
 num_dict = {2:twos, 3:threes, 4:fours, 5:fives, 6:sixes, 7:sevens, 8:eights, 9:nines, 10:tens, 11:jacks, 12:queens, 13:kings, 14:aces}
+bot_num_dict = {2:bot_twos, 3:bot_threes, 4:bot_fours, 5:bot_fives, 6:bot_sixes, 7:bot_sevens, 8:bot_eights, 9:bot_nines, 10:bot_tens, 11:bot_jacks, 12:bot_queens, 
+                13:bot_kings, 14:bot_aces}
+
+bot_suit_dict = {1:spades, 2:hearts, 3:diamonds, 4:clubs}
 
 values = list(range(2,15))
 suits = [" of Spades", " of Hearts", " of Diamonds", " of Clubs"]
@@ -37,9 +67,11 @@ def balance_change(bal_change):
     with open('account_balance.txt', 'w') as file:
         file.write(write)
 
+#Deal Cards
 def deal_card(deck):
     return deck.pop() if deck else None
 
+#Assign Card Names
 def card_name(value):
     if value == 11:
         return "Jack"
@@ -52,6 +84,99 @@ def card_name(value):
     else:
         return value
 
+#Assign Suit Val
+def suit_val(value):
+    match value:
+        case " of Spades":
+            return 1
+        case " of Hearts":
+            return 2
+        case " of Diamonds":
+            return 3
+        case " of Clubs":
+            return 4
+
+#get value for bet off suit
+def suit_lens_(suit_lens):
+    for i in range(len(suit_lens)):
+        if suit_lens[i] == 4:
+            return 500
+        elif suit_lens[i] == 3 and suit_lens[i+1] == 2:
+            return 400 
+        elif suit_lens[i] == 3:
+            return 300
+        elif len(suit_lens) > 1 and suit_lens[i] == 2 and suit_lens[i+1] == 2:
+            return 200
+        elif suit_lens[i] == 2:
+            return 100
+        else:
+            return 25
+
+#Bot hand val
+def hand_value(lens):
+    hand_val = 0
+    if bot_names[0] > bot_names[1]:
+        hand_val += (2*int(bot_names[0]))
+    else:
+        hand_val += (2*int(bot_names[1]))
+
+    for i in range(len(lens)):
+        if lens[i] == 4:
+            return (500 + hand_val)
+        elif lens[i] == 3 and lens[i+1] == 2:
+            return (400 + hand_val)
+        elif lens[i] == 3:
+            return (300 + hand_val)
+        elif len(lens) > 1 and lens[i] == 2 and lens[i+1] == 2:
+            return (200 + hand_val)
+        elif lens[i] == 2:
+            return (100 + hand_val)
+        else:
+            return hand_val
+
+#Bot bet amount
+def bet_number(value, account):
+    chance = random.randint(1,100)
+    if 400 <= value <= 550:
+        if 80 < chance < 101:
+            return "all in"
+        else:
+            var = random.randint((int(.4*account)),int(.5*account))
+            return var
+    elif 300 <= value < 400:
+        if 85 < chance < 101:
+            return "all in"
+        elif chance < 3:
+            return "fold"
+        else:
+            var = random.randint((int(.3*account)),(int(.4*account)))
+            return var
+    elif 200 <= value < 300:
+        if 90 < chance < 101:
+            return "all in"
+        elif chance < 5:
+            return "fold"
+        else:
+            var = random.randint(int((.15*account)),(int(.3*account)))
+            return var
+    elif 100 <= value < 200:
+        if 95 < chance < 101:
+            return "all in"
+        elif chance < 10:
+            return "fold"
+        else:
+            var = random.randint((int(.05*account)),(int(.15*account)))
+            return var
+    else:
+        if 99 < chance < 101:
+            return "all in"
+        elif chance < 15:
+            return "fold"
+        else:
+            var = random.randint(1,(int(.1*account)))
+            return var
+
+#print current best
 def best(lens):
     for i in range(len(lens)):
         if lens[i] == 4:
@@ -85,7 +210,7 @@ def best(lens):
                 break
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#PLAYER 
+#PLAYER Player
 
 player_suits = []
 player_names = []
@@ -130,8 +255,74 @@ while True:
     except ValueError:
         print("Please enter a number")
 
+
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#FLOP
+#PLAYER Bot
+
+bot_actual = []
+bot_names = []
+bot_suits = []
+for i in range(2):
+    botcards = deal_card(deck)
+    bot_actual.append(botcards)
+    bot_names.append(botcards[0])
+    bot_suits.append(botcards[1])
+    all_cards.append(botcards[0])
+
+#NUM LENS
+for n in bot_names:
+    if n in bot_num_dict:
+        bot_num_dict[n].append(n)
+
+bot_lens = []
+for i in bot_num_dict:
+    length = len(bot_num_dict[i])
+    lens.append(length)
+bot_lens = [i for i in lens if i != 0]
+bot_lens.sort(reverse=True)
+
+
+#SUIT LENS
+bot_suit_value = []
+for i in range(len(bot_suits)):
+    var1 = bot_suits[i]
+    var2 = suit_val(var1)
+    bot_suit_value.append(var2)
+
+for n in bot_suit_value:
+    if n in bot_suit_dict:
+        bot_suit_dict[n].append(n)
+
+bot_suit_lens = []
+for i in bot_suit_dict:
+    length = len(bot_suit_dict[i])
+    bot_suit_lens.append(length)
+bot_suit_lens = [i for i in bot_suit_lens if i != 0]
+bot_suit_lens.sort(reverse=True)
+
+hand_int = hand_value(lens)
+suit_value = suit_lens_(bot_suit_lens)
+total_value = hand_int + suit_value
+bot_bet = bet_number(hand_int, bot1_bal)
+
+print('bot Cards:',bot_actual)
+print(bot_num_dict)
+print(bot_suit_dict)
+print('bot Bet:',bot_bet)
+print()
+
+if bot_bet == "fold":
+    print('You Win:',pot)
+elif bot_bet == "all in":
+    total_bot_bet = bot1_bal
+else:
+    total_bot_bet += bot_bet
+
+pot = total_bet + total_bot_bet
+print(pot)
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#FLOP Player
 
 flop_suits = []
 flop_names = []
@@ -182,7 +373,61 @@ while True:
         print("Please enter a number")
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#TURN
+#FLOP Bot
+
+#NUM LENS
+for n in flop_names:
+    if n in bot_num_dict:
+        bot_num_dict[n].append(n)
+
+bot_lens = []
+for i in bot_num_dict:
+    length = len(bot_num_dict[i])
+    lens.append(length)
+bot_lens = [i for i in lens if i != 0]
+bot_lens.sort(reverse=True)
+
+#SUIT LENS
+bot_suit_value = []
+for i in range(len(flop_suits)):
+    var1 = flop_suits[i]
+    var2 = suit_val(var1)
+    bot_suit_value.append(var2)
+
+for n in bot_suit_value:
+    if n in bot_suit_dict:
+        bot_suit_dict[n].append(n)
+
+bot_suit_lens = []
+for i in bot_suit_dict:
+    length = len(bot_suit_dict[i])
+    bot_suit_lens.append(length)
+bot_suit_lens = [i for i in bot_suit_lens if i != 0]
+bot_suit_lens.sort(reverse=True)
+
+hand_int = hand_value(lens)
+suit_value = suit_lens_(bot_suit_lens)
+total_value = hand_int + suit_value
+bot_bet = bet_number(hand_int, bot1_bal)
+
+print('bot Cards:',bot_actual)
+print(bot_num_dict)
+print(bot_suit_dict)
+print('bot Bet:',bot_bet)
+print()
+
+if bot_bet == "fold":
+    print('You Win:',pot)
+elif bot_bet == "all in":
+    total_bot_bet = bot1_bal
+else:
+    total_bot_bet += bot_bet
+
+pot = total_bet + total_bot_bet
+print(pot)
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#TURN Player
 
 turn_suit = []
 turn_name = []
@@ -231,7 +476,61 @@ while True:
         print("Please enter a number")
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#RIVER 
+#TURN Bot
+
+#NUM LENS
+for n in turn_name:
+    if n in bot_num_dict:
+        bot_num_dict[n].append(n)
+
+bot_lens = []
+for i in bot_num_dict:
+    length = len(bot_num_dict[i])
+    lens.append(length)
+bot_lens = [i for i in lens if i != 0]
+bot_lens.sort(reverse=True)
+
+#SUIT LENS
+bot_suit_value = []
+for i in range(len(turn_suit)):
+    var1 = turn_suit[i]
+    var2 = suit_val(var1)
+    bot_suit_value.append(var2)
+
+for n in bot_suit_value:
+    if n in bot_suit_dict:
+        bot_suit_dict[n].append(n)
+
+bot_suit_lens = []
+for i in bot_suit_dict:
+    length = len(bot_suit_dict[i])
+    bot_suit_lens.append(length)
+bot_suit_lens = [i for i in bot_suit_lens if i != 0]
+bot_suit_lens.sort(reverse=True)
+
+hand_int = hand_value(lens)
+suit_value = suit_lens_(bot_suit_lens)
+total_value = hand_int + suit_value
+bot_bet = bet_number(hand_int, bot1_bal)
+
+print('bot Cards:',bot_actual)
+print(bot_num_dict)
+print(bot_suit_dict)
+print('bot Bet:',bot_bet)
+print()
+
+if bot_bet == "fold":
+    print('You Win:',pot)
+elif bot_bet == "all in":
+    total_bot_bet = bot1_bal
+else:
+    total_bot_bet += bot_bet
+
+pot = total_bet + total_bot_bet
+print(pot)
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#RIVER Player
 
 river_suit = []
 river_name = []
@@ -281,6 +580,60 @@ while True:
         print("Please enter a number")
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#RIVER Bot
+
+#NUM LENS
+for n in river_name:
+    if n in bot_num_dict:
+        bot_num_dict[n].append(n)
+
+bot_lens = []
+for i in bot_num_dict:
+    length = len(bot_num_dict[i])
+    lens.append(length)
+bot_lens = [i for i in lens if i != 0]
+bot_lens.sort(reverse=True)
+
+#SUIT LENS
+bot_suit_value = []
+for i in range(len(river_suit)):
+    var1 = river_suit[i]
+    var2 = suit_val(var1)
+    bot_suit_value.append(var2)
+
+for n in bot_suit_value:
+    if n in bot_suit_dict:
+        bot_suit_dict[n].append(n)
+
+bot_suit_lens = []
+for i in bot_suit_dict:
+    length = len(bot_suit_dict[i])
+    bot_suit_lens.append(length)
+bot_suit_lens = [i for i in bot_suit_lens if i != 0]
+bot_suit_lens.sort(reverse=True)
+
+hand_int = hand_value(lens)
+suit_value = suit_lens_(bot_suit_lens)
+total_value = hand_int + suit_value
+bot_bet = bet_number(hand_int, bot1_bal)
+
+print('bot Cards:',bot_actual)
+print(bot_num_dict)
+print(bot_suit_dict)
+print('bot Bet:',bot_bet)
+print()
+
+if bot_bet == "fold":
+    print('You Win:',pot)
+elif bot_bet == "all in":
+    total_bot_bet = bot1_bal
+else:
+    total_bot_bet += bot_bet
+
+pot = total_bet + total_bot_bet
+print(pot)
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PRINTS
 
 print(card_1)
@@ -298,4 +651,3 @@ print(all_cards)
 print(lens)
 
 best(lens)
-
