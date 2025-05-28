@@ -12,8 +12,12 @@ bot1_bal = int(bot1_bal_s)
 #USE FOR CHECKING FOR DUPLICATES
 all_cards = []
 
+loose = 0       
 pot = 0
 total_bot_bet = 0
+
+player_best = []
+bot_best = []
 
 twos = []
 threes = []
@@ -183,7 +187,7 @@ def best(lens):
             print('Current Best:')
             print('Four of a kind')
             break
-        elif lens[i] == 3 and lens[i+1] == 2:
+        elif len(lens) > 2 and lens[i] == 3 and lens[i+1] == 2:
             print('Current Best:')
             print('Full House')
             break
@@ -191,7 +195,7 @@ def best(lens):
             print('Current Best:')
             print('Three of a kind')
             break
-        elif lens[i] == 2 and lens[i+1] == 2:
+        elif len(lens) > 2 and lens[i] == 2 and lens[i+1] == 2:
             print('Current Best:')
             print('Two Pair')
             break
@@ -208,6 +212,45 @@ def best(lens):
                 print('Current Best:')
                 print('High card:', card_name(player_names[1]))
                 break
+
+
+def win_check(len1, len2):
+    if len1[0] > len2[0]:
+        balance_change(pot)
+        print('You Win!')
+        print('Pot:',pot)
+    elif len1[0] < len2[0]:
+        balance_change(loose)
+        print('You Loose :(')
+    elif len1[0] == len2[0] and len1[1] > len2[1]:
+        balance_change(pot)
+        print('You Win!')
+        print('Pot:',pot)
+    elif len1[0] == len2[0] and len1[1] < len2[1]:
+        balance_change(loose)
+        print('You Loose :(')
+    elif len1[0] == len2[0]:
+        check1 = sorted(player_best, reverse=True)
+        check2 = sorted(bot_best, reverse=True)
+        print(check1)
+        print(check2)
+        check3 = sorted(player_names, reverse=True)
+        check4 = sorted(bot_names, reverse=True)
+        if len(check1) > 0 and len(check2) > 0 and check1[0] > check2[0]:
+            balance_change(pot)
+            print('You Win!')
+            print('Pot:',pot)
+        elif len(check1) > 0 and len(check2) > 0 and check1[0] < check2[0]:
+            balance_change(loose)
+            print('You Loose :(')
+        else:
+            if check3[0] > check4[0]:
+                balance_change(pot)
+                print('You Win!')
+                print('Pot:',pot)
+            elif check3[0] < check4[0]:
+                balance_change(loose)
+                print('You Loose :(')
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PLAYER Player
@@ -230,8 +273,11 @@ for n in player_names:
 
 #create length lists to check for pairs and whatnot
 lens = []
+player_best = []
 for i in num_dict:
     length = len(num_dict[i])
+    if length == 2:
+        player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
 lens.sort(reverse=True)
@@ -275,10 +321,13 @@ for n in bot_names:
         bot_num_dict[n].append(n)
 
 bot_lens = []
+bot_best = []
 for i in bot_num_dict:
     length = len(bot_num_dict[i])
-    lens.append(length)
-bot_lens = [i for i in lens if i != 0]
+    if length == 2:
+        bot_best.append(i)
+    bot_lens.append(length)
+bot_lens = [i for i in bot_lens if i != 0]
 bot_lens.sort(reverse=True)
 
 
@@ -305,21 +354,24 @@ suit_value = suit_lens_(bot_suit_lens)
 total_value = hand_int + suit_value
 bot_bet = bet_number(hand_int, bot1_bal)
 
-print('bot Cards:',bot_actual)
-print(bot_num_dict)
-print(bot_suit_dict)
-print('bot Bet:',bot_bet)
-print()
+#print('bot Cards:',bot_actual)
+#print(bot_num_dict)
+#print(bot_suit_dict)
+#print('bot Bet:',bot_bet)
+#print()
 
 if bot_bet == "fold":
+    print('Bot Folds')
     print('You Win:',pot)
+    balance_change(pot)
+    quit()
 elif bot_bet == "all in":
     total_bot_bet = bot1_bal
 else:
     total_bot_bet += bot_bet
 
 pot = total_bet + total_bot_bet
-print(pot)
+print('Pot:',pot)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #FLOP Player
@@ -343,8 +395,11 @@ for n in flop_names:
 
 #create length lists to check for pairs and whatnot
 lens = []
+player_best = []
 for i in num_dict:
     length = len(num_dict[i])
+    if length == 2:
+        player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
 lens.sort(reverse=True)
@@ -381,10 +436,13 @@ for n in flop_names:
         bot_num_dict[n].append(n)
 
 bot_lens = []
+bot_best = []
 for i in bot_num_dict:
     length = len(bot_num_dict[i])
-    lens.append(length)
-bot_lens = [i for i in lens if i != 0]
+    if length == 2:
+        bot_best.append(i)
+    bot_lens.append(length)
+bot_lens = [i for i in bot_lens if i != 0]
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -410,21 +468,24 @@ suit_value = suit_lens_(bot_suit_lens)
 total_value = hand_int + suit_value
 bot_bet = bet_number(hand_int, bot1_bal)
 
-print('bot Cards:',bot_actual)
-print(bot_num_dict)
-print(bot_suit_dict)
-print('bot Bet:',bot_bet)
-print()
+#print('bot Cards:',bot_actual)
+#print(bot_num_dict)
+#print(bot_suit_dict)
+#print('bot Bet:',bot_bet)
+#print()
 
 if bot_bet == "fold":
+    print('Bot Folds')
     print('You Win:',pot)
+    balance_change(pot)
+    quit()
 elif bot_bet == "all in":
     total_bot_bet = bot1_bal
 else:
     total_bot_bet += bot_bet
 
 pot = total_bet + total_bot_bet
-print(pot)
+print('Pot:',pot)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #TURN Player
@@ -445,8 +506,11 @@ for n in turn_name:
 
 #create length lists to check for pairs and whatnot
 lens = []
+player_best = []
 for i in num_dict:
     length = len(num_dict[i])
+    if length == 2:
+        player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
 lens.sort(reverse=True)
@@ -484,10 +548,13 @@ for n in turn_name:
         bot_num_dict[n].append(n)
 
 bot_lens = []
+bot_best = []
 for i in bot_num_dict:
     length = len(bot_num_dict[i])
-    lens.append(length)
-bot_lens = [i for i in lens if i != 0]
+    if length == 2:
+        bot_best.append(i)
+    bot_lens.append(length)
+bot_lens = [i for i in bot_lens if i != 0]
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -513,21 +580,24 @@ suit_value = suit_lens_(bot_suit_lens)
 total_value = hand_int + suit_value
 bot_bet = bet_number(hand_int, bot1_bal)
 
-print('bot Cards:',bot_actual)
-print(bot_num_dict)
-print(bot_suit_dict)
-print('bot Bet:',bot_bet)
-print()
+#print('bot Cards:',bot_actual)
+#print(bot_num_dict)
+#print(bot_suit_dict)
+#print('bot Bet:',bot_bet)
+#print()
 
 if bot_bet == "fold":
+    print('Bot Folds')
     print('You Win:',pot)
+    balance_change(pot)
+    quit()
 elif bot_bet == "all in":
     total_bot_bet = bot1_bal
 else:
     total_bot_bet += bot_bet
 
 pot = total_bet + total_bot_bet
-print(pot)
+print('Pot:',pot)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #RIVER Player
@@ -548,8 +618,11 @@ for n in river_name:
 
 #create length lists to check for pairs and whatnot
 lens = []
+player_best = []
 for i in num_dict:
     length = len(num_dict[i])
+    if length == 2:
+        player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
 lens.sort(reverse=True)
@@ -588,10 +661,13 @@ for n in river_name:
         bot_num_dict[n].append(n)
 
 bot_lens = []
+bot_best = []
 for i in bot_num_dict:
     length = len(bot_num_dict[i])
-    lens.append(length)
-bot_lens = [i for i in lens if i != 0]
+    if length == 2:
+        bot_best.append(i)
+    bot_lens.append(length)
+bot_lens = [i for i in bot_lens if i != 0]
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -617,21 +693,24 @@ suit_value = suit_lens_(bot_suit_lens)
 total_value = hand_int + suit_value
 bot_bet = bet_number(hand_int, bot1_bal)
 
-print('bot Cards:',bot_actual)
-print(bot_num_dict)
-print(bot_suit_dict)
-print('bot Bet:',bot_bet)
-print()
+#print('bot Cards:',bot_actual)
+#print(bot_num_dict)
+#print(bot_suit_dict)
+#print('bot Bet:',bot_bet)
+#print()
 
 if bot_bet == "fold":
+    print('Bot Folds')
     print('You Win:',pot)
+    balance_change(pot)
+    quit()
 elif bot_bet == "all in":
     total_bot_bet = bot1_bal
 else:
     total_bot_bet += bot_bet
 
 pot = total_bet + total_bot_bet
-print(pot)
+print('Pot:',pot)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PRINTS
@@ -644,10 +723,18 @@ print(flop_2)
 print(flop_3)
 print(turn)
 print(river)
-
-all_cards.sort(reverse=True)
-print(all_cards)
-
+print()
+print(bot_actual)
+print()
 print(lens)
+print(bot_lens)
 
-best(lens)
+
+#all_cards.sort(reverse=True)
+#print(all_cards)
+
+#print(lens)
+
+#best(lens)
+
+win_check(lens, bot_lens)
