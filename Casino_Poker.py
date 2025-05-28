@@ -10,6 +10,7 @@ with open('bot1_account.txt', 'rb') as file:
 
 bot1_bal = int(bot1_bal_s)
 
+all_in = 0
 loose = 0       
 pot = 0
 total_bot_bet = 0
@@ -50,11 +51,17 @@ hearts = []
 diamonds = []
 clubs = []
 
+bot_spades = []
+bot_hearts = []
+bot_diamonds = []
+bot_clubs = []
+
 num_dict = {2:twos, 3:threes, 4:fours, 5:fives, 6:sixes, 7:sevens, 8:eights, 9:nines, 10:tens, 11:jacks, 12:queens, 13:kings, 14:aces}
 bot_num_dict = {2:bot_twos, 3:bot_threes, 4:bot_fours, 5:bot_fives, 6:bot_sixes, 7:bot_sevens, 8:bot_eights, 9:bot_nines, 10:bot_tens, 11:bot_jacks, 12:bot_queens, 
                 13:bot_kings, 14:bot_aces}
 
-bot_suit_dict = {1:spades, 2:hearts, 3:diamonds, 4:clubs}
+suit_dict = {1:spades, 2:hearts, 3:diamonds, 4:clubs}
+bot_suit_dict = {1:bot_spades, 2:bot_hearts, 3:bot_diamonds, 4:bot_clubs}
 
 values = list(range(2,15))
 suits = [" of Spades", " of Hearts", " of Diamonds", " of Clubs"]
@@ -136,6 +143,19 @@ def hand_value(lens):
         else:
             return hand_val
 
+def straight_check(cards):
+    player = sorted(cards, reverse=True)
+
+    count = 0
+    for i in range(len(player) - 1):
+        if player_cards[i] - player_cards[i+1] == 1:
+            count += 1
+
+    if count >= 4:
+        return True
+    else:
+        return False
+
 #Bot bet amount
 def bet_number(value, account):
     chance = random.randint(1,100)
@@ -179,76 +199,107 @@ def bet_number(value, account):
             return var
 
 #print current best
-def best(lens):
+def best(lens, suitlens, cards, hand):
+    flush = False
+    cards_sort = sorted(cards, reverse=True)
+    player = sorted(suitlens, reverse=True)
+    if player[0] == 5:
+        flush = True
+    if straight_check(cards) and flush == True and cards_sort[0] == 14:
+        print('Current Best:')
+        print('Royal Flush')
+        win_val = 10
+        return win_val
+    elif straight_check(cards) and flush == True:
+        print('Current Best:')
+        print('Straight Flush')
+        win_val = 9
+        return win_val
     for i in range(len(lens)):
         if lens[i] == 4:
             print('Current Best:')
             print('Four of a kind')
-            break
+            win_val = 8
+            return win_val
         elif len(lens) > 2 and lens[i] == 3 and lens[i+1] == 2:
             print('Current Best:')
             print('Full House')
-            break
+            win_val = 7
+            return win_val
+        elif flush == True:
+            print('Current Best:')
+            print('Flush')
+            win_val = 6
+            return win_val
+        elif straight_check(cards):
+            print('Current Best:')
+            print('Straight')
+            win_val = 5
+            return win_val
         elif lens[i] == 3:
             print('Current Best:')
             print('Three of a kind')
-            break
+            win_val = 4
+            return win_val
         elif len(lens) > 2 and lens[i] == 2 and lens[i+1] == 2:
             print('Current Best:')
             print('Two Pair')
-            break
+            win_val = 3
+            return win_val
         elif lens[i] == 2:
             print('Current Best:')
             print('One pair')
-            break
+            win_val = 2
+            return win_val
         else:
             if player_names[0] > player_names[1]:
                 print('Current Best:')
-                print('High card:', card_name(player_names[0]))
-                break
+                print('High card:', card_name(hand[0]))
+                win_val = 1
+                return win_val
             else:
                 print('Current Best:')
-                print('High card:', card_name(player_names[1]))
-                break
+                print('High card:', card_name(hand[1]))
+                win_val = 1
+                return win_val
 
 
-def win_check(len1, len2):
-    if len1[0] > len2[0]:
-        balance_change(pot)
+def win_check(player_val, bot_val):
+    if player_val > bot_val:
         print('You Win!')
         print('Pot:',pot)
-    elif len1[0] < len2[0]:
-        balance_change(loose)
-        print('You Loose :(')
-    elif len1[0] == len2[0] and len1[1] > len2[1]:
         balance_change(pot)
-        print('You Win!')
-        print('Pot:',pot)
-    elif len1[0] == len2[0] and len1[1] < len2[1]:
-        balance_change(loose)
+    elif player_val < bot_val:
         print('You Loose :(')
-    elif len1[0] == len2[0]:
-        check1 = sorted(player_best, reverse=True)
-        check2 = sorted(bot_best, reverse=True)
-        print(check1)
-        print(check2)
-        check3 = sorted(player_names, reverse=True)
-        check4 = sorted(bot_names, reverse=True)
-        if len(check1) > 0 and len(check2) > 0 and check1[0] > check2[0]:
-            balance_change(pot)
+        balance_change(loose)
+    else:
+        if player_best[0] > bot_best[0]:
             print('You Win!')
             print('Pot:',pot)
-        elif len(check1) > 0 and len(check2) > 0 and check1[0] < check2[0]:
-            balance_change(loose)
+            balance_change(pot)
+        elif player_best[0] < bot_best[0]:
             print('You Loose :(')
+            balance_change(loose)
+        elif player_best[0] == bot_best[0] and player_best[1] > bot_best[1]:
+            print('You Win!')
+            print('Pot:',pot)
+            balance_change(pot)
+        elif player_best[0] == bot_best[0] and player_best[1] < bot_best[1]:
+            print('You Loose :(')
+            balance_change(loose)
         else:
-            if check3[0] > check4[0]:
-                balance_change(pot)
+            sort1 = sorted(player_names, reverse=True)
+            sort2 = sorted(bot_names, reverse=True)
+            if sort1[0] > sort2[0]:
                 print('You Win!')
                 print('Pot:',pot)
-            elif check3[0] < check4[0]:
-                balance_change(loose)
+                balance_change(pot)
+            elif sort1[0] < sort2[0]:
                 print('You Loose :(')
+                balance_change(loose)
+            else:
+                print('Tie')
+                balance_change(pot/2)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PLAYER Player
@@ -279,26 +330,58 @@ for i in num_dict:
         player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
+player_best.sort(reverse=True)
 lens.sort(reverse=True)
+
+#suit vals
+suit_value = []
+for i in range(len(player_suits)):
+    var1 = player_suits[i]
+    var2 = suit_val(var1)
+    suit_value.append(var2)
+
+for n in suit_value:
+    if n in suit_dict:
+        suit_dict[n].append(n)
+
+suit_lens = []
+for i in suit_dict:
+    length = len(suit_dict[i])
+    suit_lens.append(length)
+suit_lens = [i for i in suit_lens if i != 0]
+suit_lens.sort(reverse=True)
 
 print('Card 1:',card_1)
 print('Card 2:',card_2)
 print()
 
-best(lens)
+best(lens, suit_lens, player_cards, player_names)
+
+#FININSH FIXING THE ALL IN/FOLD FOR BETS
 
 #get bet amount
 while True:
-    try:
-        print('current balance is: ',balance)
-        bet_amount_1 = int(input("bet amount?: "))
-        total_bet = bet_amount_1
-        if bet_amount_1 <= int(balance):
-            break
-        else:
-            print('Not enough balance')
-    except ValueError:
-        print("Please enter a number")
+    if all_in == 1:
+        break
+    else:
+        try:
+            print('current balance is: ',balance)
+            bet_amount_1 = input("bet amount?: ")
+            if bet_amount_1.lower == "fold":
+                balance_change(loose)
+                quit()
+            elif bet_amount_1.lower == "all in":
+                total_bet = balance
+                all_in = 1
+                break
+            elif bet_amount_1 <= int(balance):
+                total_bet = bet_amount_1
+                break
+            else:
+                print('Not enough balance')
+        except ValueError:
+            print('Try Something Real')
+            
 
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,6 +411,7 @@ for i in bot_num_dict:
         bot_best.append(i)
     bot_lens.append(length)
 bot_lens = [i for i in bot_lens if i != 0]
+bot_best.sort(reverse=True)
 bot_lens.sort(reverse=True)
 
 
@@ -403,7 +487,26 @@ for i in num_dict:
         player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
+player_best.sort(reverse=True)
 lens.sort(reverse=True)
+
+#suit vals
+suit_value = []
+for i in range(len(player_suits)):
+    var1 = player_suits[i]
+    var2 = suit_val(var1)
+    suit_value.append(var2)
+
+for n in suit_value:
+    if n in suit_dict:
+        suit_dict[n].append(n)
+
+suit_lens = []
+for i in suit_dict:
+    length = len(suit_dict[i])
+    suit_lens.append(length)
+suit_lens = [i for i in suit_lens if i != 0]
+suit_lens.sort(reverse=True)
 
 print('Card 1:',card_1)
 print('Card 2:',card_2)
@@ -414,19 +517,29 @@ print(flop_1)
 print(flop_2)
 print(flop_3)
 print()
-best(lens)
+best(lens, suit_lens, player_cards, player_names)
 
+#get bet amount
 while True:
-    try:
-        print('current balance is: ',(int(balance) - bet_amount_1))
-        bet_amount_2 = int(input("bet amount?: "))
-        total_bet = bet_amount_1 + bet_amount_2
-        if bet_amount_2 <= (int(balance) - bet_amount_1):
-            break
-        else:
-            print('Not enough balance')
-    except ValueError:
-        print("Please enter a number")
+    if all_in == 1:
+        break
+    else:
+        try:
+            print('current balance is: ',balance)
+            bet_amount_2 = int(input("bet amount?: "))
+            if bet_amount_2 <= int(balance):
+                total_bet = bet_amount_1 + bet_amount_2
+                break
+            else:
+                print('Not enough balance')
+        except ValueError:
+            if bet_amount_2.lower == "fold":
+                balance_change(loose)
+                quit()
+            elif bet_amount_2.lower == "all in":
+                total_bet = balance
+                all_in = 1
+                break
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #FLOP Bot
@@ -444,6 +557,7 @@ for i in bot_num_dict:
         bot_best.append(i)
     bot_lens.append(length)
 bot_lens = [i for i in bot_lens if i != 0]
+bot_best.sort(reverse=True)
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -515,7 +629,26 @@ for i in num_dict:
         player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
+player_best.sort(reverse=True)
 lens.sort(reverse=True)
+
+#suit vals
+suit_value = []
+for i in range(len(player_suits)):
+    var1 = player_suits[i]
+    var2 = suit_val(var1)
+    suit_value.append(var2)
+
+for n in suit_value:
+    if n in suit_dict:
+        suit_dict[n].append(n)
+
+suit_lens = []
+for i in suit_dict:
+    length = len(suit_dict[i])
+    suit_lens.append(length)
+suit_lens = [i for i in suit_lens if i != 0]
+suit_lens.sort(reverse=True)
 
 print('Card 1:',card_1)
 print('Card 2:',card_2)
@@ -527,19 +660,29 @@ print(flop_2)
 print(flop_3)
 print(turn)
 print()
-best(lens)
+best(lens, suit_lens, player_cards, player_names)
 
+#get bet amount
 while True:
-    try:
-        print('current balance is: ',(int(balance) - (bet_amount_1 + bet_amount_2)))
-        bet_amount_3 = int(input("bet amount?: "))
-        total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3
-        if bet_amount_3 <= (int(balance) - total_bet):
-            break
-        else:
-            print('Not enough balance')
-    except ValueError:
-        print("Please enter a number")
+    if all_in == 1:
+        break
+    else:
+        try:
+            print('current balance is: ',balance)
+            bet_amount_3 = int(input("bet amount?: "))
+            if bet_amount_3 <= int(balance):
+                total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3
+                break
+            else:
+                print('Not enough balance')
+        except ValueError:
+            if bet_amount_3.lower == "fold":
+                balance_change(loose)
+                quit()
+            elif bet_amount_3.lower == "all in":
+                total_bet = balance
+                all_in = 1
+                break
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #TURN Bot
@@ -557,6 +700,7 @@ for i in bot_num_dict:
         bot_best.append(i)
     bot_lens.append(length)
 bot_lens = [i for i in bot_lens if i != 0]
+bot_best.sort(reverse=True)
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -628,7 +772,26 @@ for i in num_dict:
         player_best.append(i)
     lens.append(length)
 lens = [i for i in lens if i != 0]
+player_best.sort(reverse=True)
 lens.sort(reverse=True)
+
+#suit vals
+suit_value = []
+for i in range(len(player_suits)):
+    var1 = player_suits[i]
+    var2 = suit_val(var1)
+    suit_value.append(var2)
+
+for n in suit_value:
+    if n in suit_dict:
+        suit_dict[n].append(n)
+
+suit_lens = []
+for i in suit_dict:
+    length = len(suit_dict[i])
+    suit_lens.append(length)
+suit_lens = [i for i in suit_lens if i != 0]
+suit_lens.sort(reverse=True)
 
 print('Card 1:',card_1)
 print('Card 2:',card_2)
@@ -641,19 +804,29 @@ print(flop_3)
 print(turn)
 print(river)
 print()
-best(lens)
+best(lens, suit_lens, player_cards, player_names)
 
+#get bet amount
 while True:
-    try:
-        print('current balance is: ',(int(balance) - (bet_amount_1 + bet_amount_2 + bet_amount_3)))
-        bet_amount_4 = int(input("bet amount?: "))
-        total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3 + bet_amount_4
-        if bet_amount_4 <= (int(balance) - total_bet):
-            break
-        else:
-            print('Not enough balance')
-    except ValueError:
-        print("Please enter a number")
+    if all_in == 1:
+        break
+    else:
+        try:
+            print('current balance is: ',balance)
+            bet_amount_4 = int(input("bet amount?: "))
+            if bet_amount_4 <= int(balance):
+                total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3 + bet_amount_4
+                break
+            else:
+                print('Not enough balance')
+        except ValueError:
+            if bet_amount_4.lower == "fold":
+                balance_change(loose)
+                quit()
+            elif bet_amount_4.lower == "all in":
+                total_bet = balance
+                all_in = 1
+                break
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #RIVER Bot
@@ -671,6 +844,7 @@ for i in bot_num_dict:
         bot_best.append(i)
     bot_lens.append(length)
 bot_lens = [i for i in bot_lens if i != 0]
+bot_best.sort(reverse=True)
 bot_lens.sort(reverse=True)
 
 #SUIT LENS
@@ -728,16 +902,12 @@ print(turn)
 print(river)
 print()
 print(bot_actual)
+
+print('player:')
 print()
-print(lens)
-print(bot_lens)
-
-
-#all_cards.sort(reverse=True)
-#print(all_cards)
-
-#print(lens)
-
-#best(lens)
-
-win_check(lens, bot_lens)
+player_win = best(lens, suit_lens, player_cards, player_names)
+print('Bot:')
+print()
+bot_win = best(bot_lens, bot_suit_lens, bot_cards, bot_names)
+print()
+win_check(player_win, bot_win)
