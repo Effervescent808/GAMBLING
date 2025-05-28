@@ -9,8 +9,6 @@ with open('bot1_account.txt', 'rb') as file:
     bot1_bal_s = ''.join(re.findall(r'\d+', str(file.readlines())))
 
 bot1_bal = int(bot1_bal_s)
-#USE FOR CHECKING FOR DUPLICATES
-all_cards = []
 
 loose = 0       
 pot = 0
@@ -255,6 +253,7 @@ def win_check(len1, len2):
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PLAYER Player
 
+player_cards = []
 player_suits = []
 player_names = []
 #DEAL PLAYER CARDS
@@ -262,7 +261,7 @@ for i in range(2):
     playercards = deal_card(deck)
     player_names.append(playercards[0])
     player_suits.append(playercards[1])
-    all_cards.append(playercards[0])
+    player_cards.append(playercards[0])
 
 card_1 = str(card_name(player_names[0])) + str(player_suits[0])
 card_2 = str(card_name(player_names[1])) + str(player_suits[1])
@@ -305,6 +304,7 @@ while True:
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #PLAYER Bot
 
+bot_cards = []
 bot_actual = []
 bot_names = []
 bot_suits = []
@@ -313,7 +313,7 @@ for i in range(2):
     bot_actual.append(botcards)
     bot_names.append(botcards[0])
     bot_suits.append(botcards[1])
-    all_cards.append(botcards[0])
+    bot_cards.append(botcards[0])
 
 #NUM LENS
 for n in bot_names:
@@ -383,7 +383,8 @@ for i in range(3):
     flopcards = deal_card(deck)
     flop_names.append(flopcards[0])
     flop_suits.append(flopcards[1])
-    all_cards.append(flopcards[0])
+    player_cards.append(flopcards[0])
+    bot_cards.append(flopcards[0])
 
 flop_1 = str(card_name(flop_names[0])) + str(flop_suits[0])
 flop_2 = str(card_name(flop_names[1])) + str(flop_suits[1])
@@ -496,7 +497,8 @@ turn_name = []
 turncard = deal_card(deck)
 turn_name.append(turncard[0])
 turn_suit.append(turncard[1])
-all_cards.append(turncard[0])
+player_cards.append(turncard[0])
+bot_cards.append(turncard[0])
 
 turn = str(card_name(turn_name[0])) + str(turn_suit[0])
 
@@ -608,7 +610,8 @@ river_name = []
 rivercard = deal_card(deck)
 river_name.append(rivercard[0])
 river_suit.append(rivercard[1])
-all_cards.append(rivercard[0])
+player_cards.append(rivercard[0])
+bot_cards.append(rivercard[0])
 
 river = str(card_name(river_name[0])) + str(river_suit[0])
 
