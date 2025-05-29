@@ -13,6 +13,7 @@ bot1_bal = int(bot1_bal_s)
 all_in = 0
 loose = 0       
 pot = 0
+total_bet = 0
 total_bot_bet = 0
 
 player_best = []
@@ -157,8 +158,13 @@ def straight_check(cards):
         return False
 
 #Bot bet amount
-def bet_number(value, account):
+def bet_number(value, account):    
     chance = random.randint(1,100)
+    if all_in == 1:
+        if chance > 20:
+            return "all in"
+        else:
+            return "fold"
     if 400 <= value <= 550:
         if 80 < chance < 101:
             return "all in"
@@ -357,29 +363,26 @@ print()
 
 best(lens, suit_lens, player_cards, player_names)
 
-#FININSH FIXING THE ALL IN/FOLD FOR BETS
-
 #get bet amount
 while True:
     if all_in == 1:
         break
     else:
-        try:
-            print('current balance is: ',balance)
-            bet_amount_1 = input("bet amount?: ")
-            if bet_amount_1.lower == "fold":
-                balance_change(loose)
-                quit()
-            elif bet_amount_1.lower == "all in":
-                total_bet = balance
-                all_in = 1
-                break
-            elif bet_amount_1 <= int(balance):
-                total_bet = bet_amount_1
-                break
-            else:
-                print('Not enough balance')
-        except ValueError:
+        print('current balance is: ',balance)
+        bet_amount_1 = input("bet amount?: ")
+        if bet_amount_1.lower() == 'fold':
+            balance_change(loose)
+            quit()
+        elif bet_amount_1.lower() == 'all in':
+            total_bet = int(balance)
+            all_in = 1
+            break
+        elif int(bet_amount_1) <= int(balance):
+            total_bet = bet_amount_1
+            break
+        elif int(bet_amount_1) >= int(balance):
+            print('Not enough balance')
+        else:
             print('Try Something Real')
             
 
@@ -524,22 +527,22 @@ while True:
     if all_in == 1:
         break
     else:
-        try:
-            print('current balance is: ',balance)
-            bet_amount_2 = int(input("bet amount?: "))
-            if bet_amount_2 <= int(balance):
-                total_bet = bet_amount_1 + bet_amount_2
-                break
-            else:
-                print('Not enough balance')
-        except ValueError:
-            if bet_amount_2.lower == "fold":
-                balance_change(loose)
-                quit()
-            elif bet_amount_2.lower == "all in":
-                total_bet = balance
-                all_in = 1
-                break
+        print('current balance is: ',balance)
+        bet_amount_2 = input("bet amount?: ")
+        if bet_amount_2.lower() == 'fold':
+            balance_change(loose)
+            quit()
+        elif bet_amount_2.lower() == 'all in':
+            total_bet = int(balance)
+            all_in = 1
+            break
+        elif int(bet_amount_2) <= int(balance):
+            total_bet = bet_amount_1 + bet_amount_2
+            break
+        elif int(bet_amount_2) >= int(balance):
+            print('Not enough balance')
+        else:
+            print('Try Something Real')
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #FLOP Bot
@@ -667,22 +670,22 @@ while True:
     if all_in == 1:
         break
     else:
-        try:
-            print('current balance is: ',balance)
-            bet_amount_3 = int(input("bet amount?: "))
-            if bet_amount_3 <= int(balance):
-                total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3
-                break
-            else:
-                print('Not enough balance')
-        except ValueError:
-            if bet_amount_3.lower == "fold":
-                balance_change(loose)
-                quit()
-            elif bet_amount_3.lower == "all in":
-                total_bet = balance
-                all_in = 1
-                break
+        print('current balance is: ',balance)
+        bet_amount_3 = input("bet amount?: ")
+        if bet_amount_3.lower() == 'fold':
+            balance_change(loose)
+            quit()
+        elif bet_amount_3.lower() == 'all in':
+            total_bet = int(balance)
+            all_in = 1
+            break
+        elif int(bet_amount_3) <= int(balance):
+            total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3
+            break
+        elif int(bet_amount_3) >= int(balance):
+            print('Not enough balance')
+        else:
+            print('Try Something Real')
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #TURN Bot
@@ -811,22 +814,22 @@ while True:
     if all_in == 1:
         break
     else:
-        try:
-            print('current balance is: ',balance)
-            bet_amount_4 = int(input("bet amount?: "))
-            if bet_amount_4 <= int(balance):
-                total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3 + bet_amount_4
-                break
-            else:
-                print('Not enough balance')
-        except ValueError:
-            if bet_amount_4.lower == "fold":
-                balance_change(loose)
-                quit()
-            elif bet_amount_4.lower == "all in":
-                total_bet = balance
-                all_in = 1
-                break
+        print('current balance is: ',balance)
+        bet_amount_4 = input("bet amount?: ")
+        if bet_amount_4.lower() == 'fold':
+            balance_change(loose)
+            quit()
+        elif bet_amount_4.lower() == 'all in':
+            total_bet = int(balance)
+            all_in = 1
+            break
+        elif int(bet_amount_4) <= int(balance):
+            total_bet = bet_amount_1 + bet_amount_2 + bet_amount_3 + bet_amount_4
+            break
+        elif int(bet_amount_4) >= int(balance):
+            print('Not enough balance')
+        else:
+            print('Try Something Real')
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #RIVER Bot
