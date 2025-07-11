@@ -1,0 +1,34 @@
+<!Doctype html>
+
+<html>
+    <head>
+        <script>
+            function submit() {
+                let player = document.getElementById('player').value
+                console.log(player)
+
+                let balance = localStorage.getItem(player)
+                console.log(balance)
+
+                if (balance !== null) {
+                    sessionStorage.setItem('Current Player', player)
+                } else {
+                    localStorage.setItem(player, 5000)
+                    sessionStorage.setItem('Current Player', player)
+                }
+                console.log(sessionStorage.getItem('Current Player'))
+                console.log(localStorage.getItem(player))
+
+                setTimeout (() => {window.location.href = 'deal.html'}, 5000)
+                console.log('switching pages...')
+            }
+        </script>
+    </head>
+    <body>
+        <div style="margin: 0 auto; width: fit-content; text-align: center; font-size: x-large; ">
+            <p>Enter your name:</p>
+            <input type="text" id="player" name="player" placeholder="Name">
+            <input type="submit" id="submit" Value="Submit" onclick="submit()">
+        </div>
+    </body>
+</html>

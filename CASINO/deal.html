@@ -1,0 +1,165 @@
+<!Doctype html>
+<html>
+<head>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem('wincount') === null) {
+                sessionStorage.setItem('wincount',0)};
+            let wincount = parseInt(sessionStorage.getItem('wincount'),10)
+            document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`
+
+            toggleDealbutton('Deal')
+        });
+
+        let Hacecount = 0
+        let acecount = 0
+        let count = 3;
+        let Hcount = 3;
+        let total = 0;
+        let Hcard1 = Math.ceil(Math.random() * 13);
+        Hcard1 = stats(Hcard1)
+        Hcard1name = cardnames(Hcard1, Hacecount)
+        let Hcard2 = Math.ceil(Math.random() * 13);
+        Hcard2 = stats(Hcard2)
+        Hcard2name = cardnames(Hcard2, Hacecount)
+        let Htotal = Hcard1 + Hcard2;
+
+        function toggleDealbutton(variable) {
+            const button = document.getElementById(variable)
+            button.disabled = !button.disabled;
+        }
+        function stats(card) {
+            if (card > 9) {
+                return 10
+            } else if (card === 1) {
+                return 11
+            } else {
+                return card
+            }
+        }
+        function cardnames(card, whichace) {
+            if (card === 10) {
+                let names = [10, 'Jack', 'Queen', 'King']
+                let name = names[Math.floor(Math.random() * 3)]
+                return name
+            } else if (card === 11) {
+                whichace += 1
+                return 'Ace'
+            } else {
+                return card
+            }
+
+        }
+        function deal() {
+            toggleDealbutton('Deal')
+            document.getElementById('Hcards').innerHTML = `Dealer is showing: ${Hcard1name}`
+            let card1 = Math.ceil(Math.random() * 13);
+            card1 = stats(card1)
+            card1name = cardnames(card1, acecount)
+            let card2 = Math.ceil(Math.random() * 13);
+            card2 = stats(card2)
+            card2name = cardnames(card2, acecount)
+            document.getElementById('cards').innerHTML = `Card 1: ${card1name}, Card 2: ${card2name}`;
+            total = card1 + card2
+            document.getElementById('total').innerHTML = `Total: ${total}`;
+            document.getElementById('Hit').disabled = false
+            document.getElementById('Stay').disabled = false
+        }
+        function hit() {
+            let cardX = Math.ceil(Math.random() * 13);
+            cardX = stats(cardX)
+            console.log(cardX)
+            cardXname = cardnames(cardX, acecount)
+            console.log(cardXname)
+            document.getElementById('cards').innerHTML += `, Card ${count}: ${cardXname}`
+            count += 1
+            total += cardX
+            document.getElementById('total').innerHTML = `Total: ${total}`
+            if (total > 21) {
+                if (acecount > 0) {
+                    total -= 10
+                    acecount -= 1
+                    document.getElementById('total').innerHTML = `Total: ${total}`
+                } else {
+                    document.getElementById('Hit').disabled = true
+                    document.getElementById('Stay').disabled = true
+                    document.getElementById('result').innerHTML = "You lost :("
+                    setTimeout(() => {window.location.href = "you-lose.html";},3000)
+                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
+                    let wincount = wins - 1;
+                    sessionStorage.setItem('wincount', wincount)
+                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`
+                }
+            }
+        }
+        function househit() {
+            let cardY = Math.ceil(Math.random() * 13);
+            cardY = stats(cardY)
+            cardYname = cardnames(cardY, Hacecount)
+            document.getElementById('Hcards').innerHTML += `, Card ${Hcount}: ${cardYname}`;
+            Hcount += 1;
+            Htotal += cardY;
+            if (Htotal > 21) {
+                if (Hacecount > 0) {
+                    Htotal -= 10
+                    Hacecount -= 1
+                    document.getElementById('dealer').innerHTML = `Dealer: ${Htotal}`;
+                }
+            } else {
+                document.getElementById('dealer').innerHTML = `Dealer: ${Htotal}`;
+            }
+        }
+        function checkOutcome() {
+                if (Htotal <= 16) {
+                    setTimeout(() => { househit(); checkOutcome(); }, 2000);
+            } else {
+                if (total <= 21 && (Htotal > 21 || total > Htotal)) {
+                    setTimeout(() => { window.location.href = "you-win.html"; }, 3000);
+                    document.getElementById('result').innerHTML = "You Won!"
+                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
+                    let wincount = wins + 1;
+                    sessionStorage.setItem('wincount', wincount);
+                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`;
+                } else if (total > 21 || total < Htotal) {
+                    setTimeout(() => { window.location.href = "you-lose.html"; }, 3000);
+                    document.getElementById('result').innerHTML = "You lost :("
+                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
+                    let wincount = wins - 1;
+                    sessionStorage.setItem('wincount',wincount);
+                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`;
+                } else {
+                    setTimeout(() => { window.location.href = "push.html"; }, 3000);
+                    document.getElementById('result').innerHTML = "You Tied"
+                }
+            }
+        };
+        function stay() {
+            document.getElementById('Hit').disabled = true
+            document.getElementById('Stay').disabled = true
+            document.getElementById('Hcards').innerHTML = `Card 1: ${Hcard1name}, Card 2: ${Hcard2name}`;
+            document.getElementById('dealer').innerHTML = `Dealer: ${Htotal}`
+            checkOutcome()
+        }
+
+    </script>
+</head>
+<header>
+    <p style="text-align: center; font-size: x-large; border-radius: 5px;">Blackjack</p>
+</header>
+<body>
+    <div style="text-align: center;">
+        <input type="button" onclick="deal()" value="Deal" id="Deal" disabled>
+        <p id="wincounter">Total Wins: 0</p><br><br>
+        <input type="button" style="margin-right: 100px; margin-left: 100px;" onclick="hit()" value="Hit" id="Hit" disabled>
+        <input type="button" style="margin-right: 100px; margin-left: 100px;" onclick="stay()" value="Stay" id="Stay" disabled>
+    </div>
+    <p>Player Cards:</p>
+    <p id="cards"></p>
+    <p id="total"></p><br><br>
+    <p>Dealer Cards:</p>
+    <p id="Hcards"></p>
+    <p id="dealer"></p><br><br>
+    <p>Result:</p>
+    <p id="result"></p>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!Doctype html>
+
+<head>
+    <script>
+        function play() {
+            sessionStorage.setItem('wincount','0')
+            window.location.href="login.html"
+        }
+    </script>
+</head>
+<header>
+    <p style="text-align: center; font-size: x-large; border-color: black; border-radius: 5px;">Blackjack</p>
+</header>
+<body>
+    <div style="text-align: center; margin-right: 100px; margin-left: 100px;">
+        <input type="button" onclick="play()" value="Play">
+    </div>
+</body>
