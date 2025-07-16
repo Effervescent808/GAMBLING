@@ -3,12 +3,9 @@
 <head>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            if (sessionStorage.getItem('wincount') === null) {
-                sessionStorage.setItem('wincount',0)};
-            let wincount = parseInt(sessionStorage.getItem('wincount'),10)
-            document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`
-
-            toggleDealbutton('Deal')
+            player = sessionStorage.getItem('Current Player')
+            balance = localStorage.getItem(player)
+            document.getElementById("balance").innerHTML = `Balance: ${balance}`
         });
 
         let Hacecount = 0
@@ -23,6 +20,14 @@
         Hcard2 = stats(Hcard2)
         Hcard2name = cardnames(Hcard2, Hacecount)
         let Htotal = Hcard1 + Hcard2;
+
+        function bet() {
+            bet = document.getElementById("bet").value
+            const field = document.getElementById("bet")
+            toggleDealbutton('Deal')
+            setTimeout(() => {field.value = ""}, 800)
+            console.log(bet)
+        }
 
         function toggleDealbutton(variable) {
             const button = document.getElementById(variable)
@@ -85,10 +90,9 @@
                     document.getElementById('Stay').disabled = true
                     document.getElementById('result').innerHTML = "You lost :("
                     setTimeout(() => {window.location.href = "you-lose.html";},3000)
-                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
-                    let wincount = wins - 1;
-                    sessionStorage.setItem('wincount', wincount)
-                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`
+                    balance = parseInt(balance) 
+                    bet = parseInt(bet)
+                    localStorage.setItem(player, (balance-bet))
                 }
             }
         }
@@ -116,17 +120,9 @@
                 if (total <= 21 && (Htotal > 21 || total > Htotal)) {
                     setTimeout(() => { window.location.href = "you-win.html"; }, 3000);
                     document.getElementById('result').innerHTML = "You Won!"
-                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
-                    let wincount = wins + 1;
-                    sessionStorage.setItem('wincount', wincount);
-                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`;
                 } else if (total > 21 || total < Htotal) {
                     setTimeout(() => { window.location.href = "you-lose.html"; }, 3000);
                     document.getElementById('result').innerHTML = "You lost :("
-                    let wins = parseInt(sessionStorage.getItem('wincount'), 10);
-                    let wincount = wins - 1;
-                    sessionStorage.setItem('wincount',wincount);
-                    document.getElementById('wincounter').innerHTML = `Total Wins: ${wincount}`;
                 } else {
                     setTimeout(() => { window.location.href = "push.html"; }, 3000);
                     document.getElementById('result').innerHTML = "You Tied"
@@ -148,9 +144,11 @@
 </header>
 <body>
     <div style="text-align: center;">
-        <input type="button" onclick="deal()" value="Deal" id="Deal" disabled>
-        <p id="wincounter">Total Wins: 0</p><br><br>
+        <p id="balance">Balance: 0</p><br>
+        <input type="number" placeholder="bet amount" id="bet" value="0">       
+        <input type="button" value="Bet" onclick="bet()" id="betSubmit"> <br><br><br>
         <input type="button" style="margin-right: 100px; margin-left: 100px;" onclick="hit()" value="Hit" id="Hit" disabled>
+        <input type="button" onclick="deal()" value="Deal" id="Deal" disabled>
         <input type="button" style="margin-right: 100px; margin-left: 100px;" onclick="stay()" value="Stay" id="Stay" disabled>
     </div>
     <p>Player Cards:</p>

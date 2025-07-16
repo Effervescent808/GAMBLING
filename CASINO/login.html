@@ -4,6 +4,8 @@
     <head>
         <script>
             function submit() {
+                localStorage.clear()
+                
                 let player = document.getElementById('player').value
                 console.log(player)
 
@@ -19,7 +21,10 @@
                 console.log(sessionStorage.getItem('Current Player'))
                 console.log(localStorage.getItem(player))
 
-                setTimeout (() => {window.location.href = 'deal.html'}, 5000)
+                const field = document.getElementById("player")
+                field.value = ""
+
+                setTimeout (() => {window.location.href = 'deal.html'}, 500)
                 console.log('switching pages...')
             }
         </script>
